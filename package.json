@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/cleobnvntra/fragments/issues"
   },
-  "homepage": "https://github.com/cleobnvntra/fragments#readme"
+  "homepage": "https://github.com/cleobnvntra/fragments#readme",
+  "devDependencies": {
+    "prettier": "2.8.8"
+  }
 }
