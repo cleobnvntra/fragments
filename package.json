@@ -1,0 +1,21 @@
+{
+  "name": "fragments",
+  "private": true,
+  "version": "0.0.1",
+  "description": "An API Server that is a node.js based REST API using Express",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cleobnvntra/fragments.git"
+  },
+  "keywords": [],
+  "author": "Cleo Buenaventura",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/cleobnvntra/fragments/issues"
+  },
+  "homepage": "https://github.com/cleobnvntra/fragments#readme"
+}
