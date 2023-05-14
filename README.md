@@ -21,7 +21,7 @@ starts the server normally.
 
 ## dev script
 
-- starts the server via nodemon which restarts the server whenever there is a change in the src/\*\* folder.<br>
+- starts the server via nodemon which restarts the server whenever there is a change in the src/** folder.<br>
 ```sh
 npm run dev
 ```
