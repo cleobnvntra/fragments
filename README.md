@@ -37,7 +37,7 @@ similar to dev, but attaches a debugger to a running process, which allows the u
 ```json
 "scripts": {
   "test": "echo \"Error: no test specified\" && exit 1",
-  "lint": "eslint --config .eslintrc.js src/\*_/_.js",
+  "lint": "eslint --config .eslintrc.js src/**/*.js",
   "start": "node src/server.js",
   "dev": "cross-env LOG_LEVEL=debug nodemon ./src/server.js --watch src",
   "debug": "cross-env LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/server.js --watch src"
