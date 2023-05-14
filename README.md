@@ -21,16 +21,16 @@ starts the server normally.
 
 ## dev script
 
-- npm run dev<br>
+- starts the server via nodemon which restarts the server whenever there is a change in the src/\*\* folder.<br>
 ```sh
-starts the server via nodemon which restarts the server whenever there is a change in the src/\*\* folder.
+npm run dev
 ```
 
 ## debug script
 
-- npm run debug<br>
+- similar to dev, but attaches a debugger to a running process, which allows the use of the debugger on the server.<br>
 ```sh
-similar to dev, but attaches a debugger to a running process, which allows the use of the debugger on the server.
+npm run debug
 ```
 
 > NOTE: dev and debug scripts uses the cross-env package to allow overriding of environment variable values when using Windows shells.<br><br>
@@ -45,25 +45,25 @@ similar to dev, but attaches a debugger to a running process, which allows the u
 ```
 # Dependencies
 ## cors
-- npm install --save express cors<br>
+- allows a server to specify origins that are allowed to access its resources.<br>
 ```sh
-allows a server to specify origins that are allowed to access its resources.
+npm install --save express cors
 ```
 
 ## helmet
-- npm install --save express helmet<br>
+- security middleware functions for Express.js apps.<br>
 ```sh
-ecurity middleware functions for Express.js apps.
+npm install --save express helmet
 ```
 
 ## compression
-- npm install --save express compression<br>
+- provides middleware for Express.js apps to compress HTTP responses.<br>
 ```sh
-provides middleware for Express.js apps to compress HTTP responses.
+npm install --save express compression
 ```
 
 ## pino
-- npm install --save pino<br>
+- a logging tool that provides a more detailed description of logs, which can also be personalized through options.<br>
 ```sh
-a logging tool that provides a more detailed description of logs, which can also be personalized through options.
+npm install --save pino
 ```
