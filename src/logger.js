@@ -7,6 +7,7 @@ if (options.level === 'debug') {
   options.transport = {
     target: 'pino-pretty',
     options: {
+      translateTime: 'SYS:dd-mm-yyyy HH:MM:ss',
       colorize: true,
     },
   };
