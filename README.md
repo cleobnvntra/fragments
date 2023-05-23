@@ -33,11 +33,34 @@ npm run dev
 npm run debug
 ```
 
+## test script
+
+-run all tests using jest.config.js configuration one by one.
+```sh
+npm test
+```
+
+## test:watch script
+
+-similar to test script, but testing won't stop. Instead, it will keep watch for any changes made in the file, and automatically re-runs the test whenever changes are saved.
+```sh
+npm run test:watch
+```
+
+## coverage script
+
+-runs a test and collects test coverage information such as: files and lines of code being tested.
+```sh
+npm run coverage
+```
+
 > NOTE: dev and debug scripts uses the cross-env package to allow overriding of environment variable values when using Windows shells.<br><br>
 ```json
 "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --config .eslintrc.js \"./src/**/*.js\"",
+    "test:watch": "jest -c jest.config.js --runInBand --watch --",
+    "test": "jest -c jest.config.js --runInBand --",
+    "coverage": "jest -c jest.config.js --runInBand --coverage",
+    "lint": "eslint --config .eslintrc.js \"./src/**/*.js\" \"tests/**/*.js\"",
     "start": "node src/index.js",
     "dev": "cross-env LOG_LEVEL=debug nodemon ./src/index.js --watch src",
     "debug": "cross-env LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/index.js --watch src"
@@ -66,4 +89,16 @@ npm install --save express compression
 - a logging tool that provides a more detailed description of logs, which can also be personalized through options.<br>
 ```sh
 npm install --save pino
+```
+
+## jest
+- a testing framework which simplifies and automates the process of testing code.
+```sh
+npm install --save-dev jest
+```
+
+## supertest
+-a library that simplifies HTTP request testing for Node.js applications.
+```sh
+npm install --save-dev supertest
 ```
