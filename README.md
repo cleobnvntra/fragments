@@ -36,12 +36,12 @@ npm run debug
 > NOTE: dev and debug scripts uses the cross-env package to allow overriding of environment variable values when using Windows shells.<br><br>
 ```json
 "scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "lint": "eslint --config .eslintrc.js src/**/*.js",
-  "start": "node src/server.js",
-  "dev": "cross-env LOG_LEVEL=debug nodemon ./src/server.js --watch src",
-  "debug": "cross-env LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/server.js --watch src"
-}
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --config .eslintrc.js \"./src/**/*.js\"",
+    "start": "node src/index.js",
+    "dev": "cross-env LOG_LEVEL=debug nodemon ./src/index.js --watch src",
+    "debug": "cross-env LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/index.js --watch src"
+  }
 ```
 # Dependencies
 ## cors
