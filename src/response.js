@@ -29,11 +29,9 @@ module.exports.createSuccessResponse = function (data) {
  * }
  */
 module.exports.createErrorResponse = function (code, message) {
+  const error = {code: code, message: message};
   return {
     status: "error",
-    error: {
-      code: 404,
-      message: "not found"
-    }
-  }
+    ...error,
+  };
 };
