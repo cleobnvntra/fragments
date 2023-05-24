@@ -35,8 +35,8 @@ app.use(passport.initialize());
 app.use('/', require('./routes'));
 
 // Add 404 middleware to handle any requests for resources that can't be found
-const data = createErrorResponse(404, 'not found');
 app.use((req, res) => {
+  const data = createErrorResponse(404, 'not found');
   res.status(404).json(data);
 });
 
