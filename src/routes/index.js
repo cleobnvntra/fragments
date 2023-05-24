@@ -11,6 +11,9 @@ const { authenticate } = require('../authorization/index');
 // Create a router that we can use to mount our API
 const router = express.Router();
 
+// response creator from response.js
+const {createSuccessResponse} = require('../response');
+
 /**
  * Expose all of our API routes on /v1/* to include an API version.
  */
@@ -23,13 +26,14 @@ router.use(`/v1`, authenticate(), require('./api'));
 router.get('/', (req, res) => {
   // Client's shouldn't cache this response (always request it fresh)
   res.setHeader('Cache-Control', 'no-cache');
+  const data = createSuccessResponse(
+    {
+      author,
+      githubUrl: 'https://github.com/cleobnvntra/fragments',
+      version
+    });
   // Send a 200 'OK' response
-  res.status(200).json({
-    status: 'ok',
-    author,
-    githubUrl: 'https://github.com/cleobnvntra/fragments',
-    version,
-  });
+  res.status(200).json(data);
 });
 
 module.exports = router;
