@@ -35,9 +35,10 @@ npm run debug
 
 ## test script
 
--run all tests using jest.config.js configuration one by one.
+-run all tests using jest.config.js configuration one by one. 
 ```sh
 npm test
+npm test <partial or full filename> - runs specified tests only
 ```
 
 ## test:watch script
@@ -45,6 +46,7 @@ npm test
 -similar to test script, but testing won't stop. Instead, it will keep watch for any changes made in the file, and automatically re-runs the test whenever changes are saved.
 ```sh
 npm run test:watch
+npm run test:watch <partial or full filename> - runs specified tests only
 ```
 
 ## coverage script
@@ -52,6 +54,7 @@ npm run test:watch
 -runs a test and collects test coverage information such as: files and lines of code being tested.
 ```sh
 npm run coverage
+npm run coverage <partial or full filename> - displays coverage of specified tests only
 ```
 
 > NOTE: dev and debug scripts uses the cross-env package to allow overriding of environment variable values when using Windows shells.<br><br>
@@ -90,6 +93,8 @@ npm install --save express compression
 ```sh
 npm install --save pino
 ```
+
+# Dev Dependencies
 
 ## jest
 - a testing framework which simplifies and automates the process of testing code.
