@@ -3,11 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const passport = require('passport');
-<<<<<<< HEAD
-const authenticate = require('./authentication');
-=======
 const authenticate = require('./authorization/index');
->>>>>>> d2479c16df0ba478598fee66dc78e757304afdd0
 
 const logger = require('./logger');
 const { createErrorResponse } = require('./response');
