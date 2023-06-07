@@ -1,27 +1,22 @@
 // src/routes/api/get.js
 const { createSuccessResponse } = require('../../response');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const { Fragment } = require('../../model/fragment');
+const crypto = require('crypto');
 
 /**
  * Get a list of fragments for the current user
  */
 module.exports = async (req, res) => {
-  const hashEmail = (email) => {
-    const hash = crypto.createHash('sha256');
-    hash.update(email);
-    return hash.digest('hex');
-  };
-
-  // Get the user's hashed email from the decoded token
-  const userToken = req.headers.authorization.replace('Bearer ', '');
-  const decodedToken = jwt.decode(userToken);
-  const ownerId = hashEmail(decodedToken.email);
-
   try {
+    const hashEmail = (email) => {
+      const hash = crypto.createHash('sha256');
+      hash.update(email);
+      return hash.digest('hex');
+    };
+
+    const email = hashEmail(req.user);
     // Retrieve all fragments for the current user
-    const fragments = await Fragment.byUser(ownerId);
+    const fragments = await Fragment.byUser(email);
 
     // Extract only the fragment IDs from the fragments array
     const fragmentIds = fragments.map((fragment) => fragment.id);

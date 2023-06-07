@@ -13,8 +13,6 @@ module.exports = async (req, res) => {
   try {
     // Extract the file data from the request body
     const content = req.body;
-    const userToken = req.headers.authorization.replace('Bearer ', '');
-    const decodedToken = jwt.decode(userToken);
 
     // Extract the Content-Type header from the request
     const contentType = req.get('Content-Type');
@@ -23,7 +21,7 @@ module.exports = async (req, res) => {
     const fragmentId = crypto.randomUUID();
 
     // Generate the ownerId by hashing the username
-    const ownerId = hashEmail(decodedToken.email);
+    const ownerId = hashEmail(req.user);
 
     // Get the current timestamp for created and updated fields
     const timestamp = new Date().toISOString();
