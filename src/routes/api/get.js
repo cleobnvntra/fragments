@@ -32,3 +32,32 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+module.exports.expand = async (req, res) => {
+  try {
+    const hashEmail = (email) => {
+      const hash = crypto.createHash('sha256');
+      hash.update(email);
+      return hash.digest('hex');
+    };
+
+    const email = hashEmail(req.user);
+
+    const fragments = await Fragment.byUser(email);
+
+    const data = createSuccessResponse({ fragments: fragments || [] });
+    res.status(200).json(data);
+  }
+  catch (err) {
+    res.status(500);
+  }
+}
+
+module.exports.getFragmentById = async (req, res) => {
+  try {
+    res.status(200);
+  }
+  catch (err) {
+    res.status(500);
+  }
+}

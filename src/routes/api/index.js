@@ -8,8 +8,14 @@ const express = require('express');
 // Create a router on which to mount our API endpoints
 const router = express.Router();
 
+const getHandler = require('./get');
+
 // Define our first route, which will be: GET /v1/fragments
-router.get('/fragments', require('./get'));
+router.get('/fragments', getHandler);
+
+router.get('/fragments/?expand=1', getHandler.expand);
+
+router.get('/fragments/:id', getHandler.getFragmentById);
 
 //POST route for /v1/fragments to create new fragment
 router.post('/fragments', require('./post'));
