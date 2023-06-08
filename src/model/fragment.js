@@ -1,5 +1,6 @@
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
+const crypto = require('crypto');
 
 // Functions for working with fragment metadata/data using our DB
 const {
@@ -12,11 +13,32 @@ const {
 } = require('./data/memory');
 
 class Fragment {
-  constructor({ id, ownerId, created, updated, type, size = 0 }) {
+  constructor({ id, ownerId, type, size = 0 }) {
+    if (!id) {
+      id = crypto.randomUUID();
+    }
+
+    if (!ownerId || !type) {
+      throw new Error('Required properties missing.');
+    }
+
+    if (typeof size !== 'number') {
+      throw new Error('Size must be a number.');
+    } else {
+      if (size < 0) {
+        throw new Error('Size cannot be negative.');
+      }
+    }
+
+    const parsedType = contentType.parse(type);
+    if (!Fragment.isSupportedType(parsedType.type)) {
+      throw new Error(`Invalid type: ${type}`);
+    }
+
     this.id = id;
     this.ownerId = ownerId;
-    this.created = new Date(created);
-    this.updated = new Date(updated);
+    this.created = new Date().toISOString();
+    this.updated = new Date().toISOString();
     this.type = type;
     this.size = size;
   }
@@ -31,9 +53,13 @@ class Fragment {
     const fragments = await listFragments(ownerId, expand);
     const fragmentObjects = [];
 
+    if (expand || !fragments) {
+      // If expand is true or no fragments are returned, return the fragments as-is
+      return Promise.resolve(fragments);
+    }
+
     for (const fragmentId of fragments) {
-      const fragment = await readFragment(ownerId, fragmentId);
-      fragmentObjects.push(new Fragment(fragment));
+      fragmentObjects.push(fragmentId);
     }
 
     return Promise.resolve(fragmentObjects);
@@ -49,7 +75,7 @@ class Fragment {
     const fragmentData = await readFragment(ownerId, id);
 
     if (!fragmentData) {
-      return null; // Return null if the fragment doesn't exist
+      throw new Error('Unable to find fragment.');
     }
 
     return Promise.resolve(new Fragment(fragmentData));
@@ -69,7 +95,8 @@ class Fragment {
    * Saves the current fragment to the database
    * @returns Promise<void>
    */
-  save() {
+  async save() {
+    this.updated = new Date().toISOString();
     const fragmentData = {
       id: this.id,
       ownerId: this.ownerId,
@@ -78,8 +105,8 @@ class Fragment {
       type: this.type,
       size: this.size,
     };
-
-    return Promise.resolve(writeFragment(fragmentData));
+    await writeFragment(fragmentData);
+    return Promise.resolve();
   }
 
   /**
@@ -88,6 +115,10 @@ class Fragment {
    */
   async getData() {
     const data = await readFragmentData(this.ownerId, this.id);
+    if (!data) {
+      throw new Error('No data retrieved.');
+    }
+
     return Promise.resolve(Buffer.from(data));
   }
 
@@ -97,7 +128,10 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    return Promise.resolve(writeFragmentData(this.ownerId, this.id, data));
+    await writeFragmentData(this.ownerId, this.id, data);
+    this.size = Buffer.byteLength(data);
+    this.save();
+    return Promise.resolve();
   }
 
   /**
@@ -143,7 +177,9 @@ class Fragment {
       'image/jpeg',
       'image/webp',
     ];
-    return supportedTypes.includes(value);
+
+    const typeWithoutCharset = value.split(';')[0].trim();
+    return supportedTypes.includes(typeWithoutCharset);
   }
 }
 

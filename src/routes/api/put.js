@@ -6,11 +6,6 @@ module.exports = async (req, res) => {
     const fragment = await Fragment.byId(req.user, req.params.id);
     let error;
 
-    if (!fragment) {
-      error = createErrorResponse(404, 'Unable to find fragment id: ' + req.params.id);
-      return res.status(404).json(error);
-    }
-
     const reqContentType = req.get('Content-Type');
 
     if (reqContentType != fragment.type) {
@@ -22,10 +17,12 @@ module.exports = async (req, res) => {
     const updatedData = req.body;
 
     // Update the fragment's data
-    await fragment.setData(updatedData);
-    fragment.updated = new Date().toISOString();
-    fragment.size = Buffer.byteLength(updatedData);
-    await fragment.save();
+    try {
+      await fragment.setData(updatedData);
+    } catch (err) {
+      error = createErrorResponse(400, err);
+      return res.status(400).json(error);
+    }
 
     const data = createSuccessResponse({
       message: 'Fragment data updated successfully',
@@ -33,7 +30,7 @@ module.exports = async (req, res) => {
     });
     return res.status(200).json(data);
   } catch (err) {
-    const error = createErrorResponse(500, 'Error updating fragment data');
-    return res.status(500).json(error);
+    const error = createErrorResponse(404, err);
+    return res.status(404).json(error);
   }
 };

@@ -13,9 +13,6 @@ module.exports = async (req, res) => {
     // Generate a new fragment ID using a UUID
     const fragmentId = crypto.randomUUID();
 
-    // Get the current timestamp for created and updated fields
-    const timestamp = new Date().toISOString();
-
     // Calculate the size of the file data in bytes
     const size = Buffer.byteLength(content);
 
@@ -23,8 +20,6 @@ module.exports = async (req, res) => {
     const fragmentData = {
       id: fragmentId,
       ownerId: req.user,
-      created: timestamp,
-      updated: timestamp,
       type: contentType,
       size: size,
     };
@@ -38,11 +33,11 @@ module.exports = async (req, res) => {
 
     // Store the file data and metadata in the database or any other storage mechanism
     await newFragment.setData(content);
-    await newFragment.save();
 
     // Send the response with the newly created fragment metadata
     const data = createSuccessResponse({ fragment: newFragment, message: 'Fragment created' });
-    return res.status(201).json(data);
+    res.setHeader('Location', newFragment.id);
+    return res.status(201).json({ ...data });
   } catch (err) {
     const error = createErrorResponse(500, 'Internal Server Error');
     return res.status(500).json(error);
