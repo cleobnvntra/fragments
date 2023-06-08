@@ -1,15 +1,8 @@
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
-const { createSuccessResponse } = require('../../response');
+const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
 
 module.exports = async (req, res) => {
-  const hashEmail = (email) => {
-    const hash = crypto.createHash('sha256');
-    hash.update(email);
-    return hash.digest('hex');
-  };
-
   try {
     // Extract the file data from the request body
     const content = req.body;
@@ -20,9 +13,6 @@ module.exports = async (req, res) => {
     // Generate a new fragment ID using a UUID
     const fragmentId = crypto.randomUUID();
 
-    // Generate the ownerId by hashing the username
-    const ownerId = hashEmail(req.user);
-
     // Get the current timestamp for created and updated fields
     const timestamp = new Date().toISOString();
 
@@ -32,14 +22,14 @@ module.exports = async (req, res) => {
     // Create a new instance of the Fragment class
     const fragmentData = {
       id: fragmentId,
-      ownerId: ownerId,
+      ownerId: req.user,
       created: timestamp,
       updated: timestamp,
       type: contentType,
       size: size,
     };
 
-    const newFragment = await new Fragment(fragmentData);
+    const newFragment = new Fragment(fragmentData);
 
     // Check if the Content-Type is supported
     if (!Fragment.isSupportedType(contentType)) {
@@ -51,10 +41,10 @@ module.exports = async (req, res) => {
     await newFragment.save();
 
     // Send the response with the newly created fragment metadata
-    const data = createSuccessResponse({ fragment: newFragment });
-    res.status(201).json(data);
-  } catch (error) {
-    console.error('Error creating fragment:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const data = createSuccessResponse({ fragment: newFragment, message: 'Fragment created' });
+    return res.status(201).json(data);
+  } catch (err) {
+    const error = createErrorResponse(500, 'Internal Server Error');
+    return res.status(500).json(error);
   }
 };

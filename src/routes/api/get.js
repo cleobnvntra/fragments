@@ -1,63 +1,72 @@
 // src/routes/api/get.js
-const { createSuccessResponse } = require('../../response');
+const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
-const crypto = require('crypto');
 
 /**
  * Get a list of fragments for the current user
  */
 module.exports = async (req, res) => {
   try {
-    const hashEmail = (email) => {
-      const hash = crypto.createHash('sha256');
-      hash.update(email);
-      return hash.digest('hex');
-    };
-
-    const email = hashEmail(req.user);
     // Retrieve all fragments for the current user
-    const fragments = await Fragment.byUser(email);
-
-    // Extract only the fragment IDs from the fragments array
-    const fragmentIds = fragments.map((fragment) => fragment.id);
+    const fragments = await Fragment.byUser(req.user);
+    let fragmentIds = [];
+    let data = {};
 
     // Create the success response with the fragments data
-    const data = createSuccessResponse({ fragments: fragmentIds || [] });
+    if (req.query.expand != 1) {
+      // Extract only the fragment IDs from the fragments array
+      fragmentIds = fragments.map((fragment) => fragment.id);
+      data = createSuccessResponse({ fragments: fragmentIds || [] });
+    } else {
+      data = createSuccessResponse({ fragments: fragments || [] });
+    }
 
     // Send the response with the fragments data
-    res.status(200).json(data);
-  } catch (error) {
+    return res.status(200).json(data);
+  } catch (err) {
     // Handle any errors that occur during the process
-    console.error('Error retrieving fragments:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const error = createErrorResponse(500, 'Internal Server Error');
+    return res.status(500).json(error);
   }
 };
 
-module.exports.expand = async (req, res) => {
+module.exports.getFragment = async (req, res) => {
   try {
-    const hashEmail = (email) => {
-      const hash = crypto.createHash('sha256');
-      hash.update(email);
-      return hash.digest('hex');
-    };
+    const fragment = await Fragment.byId(req.user, req.params.id);
 
-    const email = hashEmail(req.user);
+    if (!fragment) {
+      const error = createErrorResponse(404, 'Unable to find fragment id: ' + req.params.id);
+      return res.status(404).json(error);
+    }
 
-    const fragments = await Fragment.byUser(email);
-
-    const data = createSuccessResponse({ fragments: fragments || [] });
-    res.status(200).json(data);
+    const data = createSuccessResponse({ code: 200, fragments: fragment });
+    return res.status(200).json(data);
+  } catch (err) {
+    const error = createErrorResponse(500, 'Internal Server Error');
+    return res.status(500).json(error);
   }
-  catch (err) {
-    res.status(500);
-  }
-}
+};
 
 module.exports.getFragmentById = async (req, res) => {
   try {
-    res.status(200);
+    const fragment = await Fragment.byId(req.user, req.params.id);
+
+    if (!fragment) {
+      const error = createErrorResponse(404, 'Unable to find fragment id: ' + req.params.id);
+      return res.status(404).json(error);
+    }
+
+    const fragmentBuffer = await fragment.getData();
+    const fragmentData = fragmentBuffer.toString();
+
+    const data = createSuccessResponse({
+      type: fragment.type,
+      size: fragment.size,
+      data: fragmentData,
+    });
+    return res.status(200).json(data);
+  } catch (err) {
+    const error = createErrorResponse(500, 'Internal Server Error');
+    return res.status(500).json(error);
   }
-  catch (err) {
-    res.status(500);
-  }
-}
+};
