@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
+const logger = require('../../logger');
 
 module.exports = async (req, res) => {
   try {
@@ -25,6 +26,7 @@ module.exports = async (req, res) => {
     };
 
     const newFragment = new Fragment(fragmentData);
+    logger.debug(newFragment);
 
     // Store the file data and metadata in the database or any other storage mechanism
     await newFragment.setData(content);
@@ -37,6 +39,7 @@ module.exports = async (req, res) => {
     return res.status(201).json({ ...data });
   } catch (err) {
     const error = createErrorResponse(415, err.message);
+    logger.error(error);
     return res.status(415).json(error);
   }
 };

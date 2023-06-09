@@ -1,15 +1,18 @@
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
+const logger = require('../../logger');
 
 module.exports = async (req, res) => {
   try {
     const fragment = await Fragment.byId(req.user, req.params.id);
+    logger.debug(fragment);
     let error;
 
     const reqContentType = req.get('Content-Type');
 
     if (reqContentType != fragment.type) {
       error = createErrorResponse(400, 'Content-Type mismatch');
+      logger.error(error);
       return res.status(400).json(error.message);
     }
 
@@ -21,6 +24,7 @@ module.exports = async (req, res) => {
       await fragment.setData(updatedData);
     } catch (err) {
       error = createErrorResponse(400, err.message);
+      logger.error(error);
       return res.status(400).json(error);
     }
 
@@ -28,6 +32,7 @@ module.exports = async (req, res) => {
       message: 'Fragment data updated successfully',
       fragment: fragment,
     });
+    logger.debug(data);
 
     const baseUrl = req.headers.host + '/v1/fragments/';
     res.setHeader('Location', baseUrl + fragment.id);
@@ -35,6 +40,7 @@ module.exports = async (req, res) => {
     return res.status(200).json(data);
   } catch (err) {
     const error = createErrorResponse(404, err.message);
+    logger.error(error);
     return res.status(404).json(error);
   }
 };
