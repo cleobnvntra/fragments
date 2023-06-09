@@ -37,6 +37,7 @@ module.exports = async (req, res) => {
     // Send the response with the newly created fragment metadata
     const data = createSuccessResponse({ fragment: newFragment, message: 'Fragment created' });
     res.setHeader('Location', newFragment.id);
+    res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(201).json({ ...data });
   } catch (err) {
     const error = createErrorResponse(500, 'Internal Server Error');
