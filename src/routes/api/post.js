@@ -26,22 +26,17 @@ module.exports = async (req, res) => {
 
     const newFragment = new Fragment(fragmentData);
 
-    // Check if the Content-Type is supported
-    if (!Fragment.isSupportedType(contentType)) {
-      const error = createErrorResponse(415, 'Unsupported Media Type');
-      return res.status(415).json(error);
-    }
-
     // Store the file data and metadata in the database or any other storage mechanism
     await newFragment.setData(content);
 
     // Send the response with the newly created fragment metadata
     const data = createSuccessResponse({ fragment: newFragment, message: 'Fragment created' });
-    res.setHeader('Location', newFragment.id);
+    const baseUrl = req.headers.host + '/v1/fragments/';
+    res.setHeader('Location', baseUrl + newFragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(201).json({ ...data });
   } catch (err) {
-    const error = createErrorResponse(500, 'Internal Server Error');
-    return res.status(500).json(error);
+    const error = createErrorResponse(415, err.message);
+    return res.status(415).json(error);
   }
 };

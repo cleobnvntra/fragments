@@ -28,6 +28,10 @@ module.exports = async (req, res) => {
       message: 'Fragment data updated successfully',
       fragment: fragment,
     });
+
+    const baseUrl = req.headers.host + '/v1/fragments/';
+    res.setHeader('Location', baseUrl + fragment.id);
+    res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(200).json(data);
   } catch (err) {
     const error = createErrorResponse(404, err.message);
