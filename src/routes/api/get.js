@@ -19,6 +19,9 @@ module.exports = async (req, res) => {
     const data = createSuccessResponse({ fragments: fragments || [] });
 
     // Send the response with the fragments data
+    const baseUrl = req.headers.host + '/v1/fragments';
+    res.setHeader('Location', baseUrl);
+    res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(200).json(data);
   } catch (err) {
     // Handle any errors that occur during the process
