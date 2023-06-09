@@ -28,7 +28,8 @@ module.exports = async (req, res) => {
 
     // Check if the Content-Type is supported
     if (!Fragment.isSupportedType(contentType)) {
-      return res.status(415).json({ error: 'Unsupported Media Type' });
+      const error = createErrorResponse(415, 'Unsupported Media Type');
+      return res.status(415).json(error);
     }
 
     // Store the file data and metadata in the database or any other storage mechanism

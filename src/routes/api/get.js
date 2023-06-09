@@ -37,7 +37,7 @@ module.exports.getFragment = async (req, res) => {
     const data = createSuccessResponse({ code: 200, fragments: fragment });
     return res.status(200).json({ ...data });
   } catch (err) {
-    const error = createErrorResponse(404, err);
+    const error = createErrorResponse(404, err.message);
     return res.status(404).json(error);
   }
 };
@@ -57,7 +57,7 @@ module.exports.getFragmentById = async (req, res) => {
     res.setHeader('Content-Type', fragment.type);
     return res.status(200).send(text);
   } catch (err) {
-    const error = createErrorResponse(404, err);
+    const error = createErrorResponse(404, err.message);
     return res.status(404).json(error);
   }
 };

@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
 
     if (reqContentType != fragment.type) {
       error = createErrorResponse(400, 'Content-Type mismatch');
-      return res.status(400).json(error);
+      return res.status(400).json(error.message);
     }
 
     // Get the updated data from the request body
@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
     try {
       await fragment.setData(updatedData);
     } catch (err) {
-      error = createErrorResponse(400, err);
+      error = createErrorResponse(400, err.message);
       return res.status(400).json(error);
     }
 
@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     });
     return res.status(200).json(data);
   } catch (err) {
-    const error = createErrorResponse(404, err);
+    const error = createErrorResponse(404, err.message);
     return res.status(404).json(error);
   }
 };
