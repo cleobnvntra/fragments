@@ -3,14 +3,14 @@ const request = require('supertest');
 const app = require('../../src/app');
 
 describe('PUT /v1/fragments/:id', () => {
-  test('unauthenticated requests are denied', () => {
+  test('unauthenticated requests are denied', async () => {
     const fragment = new Fragment({ ownerId: 'abcd', type: 'text/plain', size: 6 });
-    request(app).put(`/v1/fragments/${fragment.id}`).expect(401);
+    await request(app).put(`/v1/fragments/${fragment.id}`).expect(401);
   });
 
-  test('incorrect credentials are denied', () => {
+  test('incorrect credentials are denied', async () => {
     const fragment = new Fragment({ ownerId: 'abcd', type: 'text/plain', size: 6 });
-    request(app)
+    await request(app)
       .put(`/v1/fragments/${fragment.id}`)
       .auth('invalid@email.com', 'incorrect_password')
       .expect(401);

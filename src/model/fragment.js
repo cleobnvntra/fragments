@@ -13,13 +13,18 @@ const {
 } = require('./data/memory');
 
 class Fragment {
-  constructor({ id, ownerId, type, size = 0 }) {
+  constructor({ id, ownerId, created, updated, type, size = 0 }) {
     if (!id) {
       id = crypto.randomUUID();
     }
 
     if (!ownerId || !type) {
       throw new Error('Required properties missing.');
+    }
+
+    if (!created && !updated) {
+      created = new Date().toISOString();
+      updated = new Date().toISOString();
     }
 
     if (typeof size !== 'number') {
@@ -37,8 +42,8 @@ class Fragment {
 
     this.id = id;
     this.ownerId = ownerId;
-    this.created = new Date().toISOString();
-    this.updated = new Date().toISOString();
+    this.created = created;
+    this.updated = updated;
     this.type = type;
     this.size = size;
   }
