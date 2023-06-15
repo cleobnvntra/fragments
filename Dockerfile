@@ -1,5 +1,5 @@
 # FROM <base image>
-FROM node:18:16.0
+FROM node:18.16.0
 
 # LABEL <key=value>
 LABEL maintainer="Cleo Buenaventura <cjbuenaventura@myseneca.ca>"
@@ -29,6 +29,9 @@ RUN npm install
 
 # Copy src to /app/src/
 COPY ./src ./src
+
+# Copy our HTPASSWD file
+COPY ./tests/.htpasswd ./tests/.htpasswd
 
 # Start the container by running our server
 CMD npm start
