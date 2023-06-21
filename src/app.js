@@ -31,8 +31,6 @@ app.use(compression());
 passport.use(authenticate.strategy());
 app.use(passport.initialize());
 
-app.use(express.text());
-
 // Define our routes
 app.use('/', require('./routes'));
 

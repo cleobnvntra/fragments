@@ -17,7 +17,13 @@ module.exports = async (req, res) => {
     }
 
     // Get the updated data from the request body
-    const updatedData = req.body;
+    let updatedData;
+    if (Buffer.isBuffer(req.body)) {
+      updatedData = req.body;
+    } else {
+      const error = createErrorResponse(415, 'Invalid type');
+      return res.status(415).json(error);
+    }
 
     // Update the fragment's data
     try {

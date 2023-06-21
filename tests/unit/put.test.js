@@ -37,6 +37,7 @@ describe('PUT /v1/fragments/:id', () => {
       .auth('user1@email.com', 'password1')
       .set('Content-Type', 'text/plain')
       .send(newData);
+    console.log(updateRes.error);
     expect(updateRes.statusCode).toBe(200);
 
     const receiveNewRes = await request(app)

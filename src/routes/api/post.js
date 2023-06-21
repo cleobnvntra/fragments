@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
@@ -6,26 +5,29 @@ const logger = require('../../logger');
 module.exports = async (req, res) => {
   try {
     // Extract the file data from the request body
-    const content = req.body;
+    let content;
+    if (Buffer.isBuffer(req.body)) {
+      content = req.body;
+    } else {
+      const error = createErrorResponse(415, 'Invalid type');
+      return res.status(415).json(error);
+    }
 
     // Extract the Content-Type header from the request
     const contentType = req.get('Content-Type');
-
-    // Generate a new fragment ID using a UUID
-    const fragmentId = crypto.randomUUID();
 
     // Calculate the size of the file data in bytes
     const size = Buffer.byteLength(content);
 
     // Create a new instance of the Fragment class
     const fragmentData = {
-      id: fragmentId,
       ownerId: req.user,
       type: contentType,
       size: size,
     };
 
-    const newFragment = new Fragment(fragmentData);
+    let newFragment;
+    newFragment = new Fragment(fragmentData);
     logger.debug(newFragment);
 
     // Store the file data and metadata in the database or any other storage mechanism
@@ -38,8 +40,9 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(201).json({ ...data });
   } catch (err) {
-    const error = createErrorResponse(415, err.message);
+    console.log(err.message);
+    const error = createErrorResponse(500, err.message);
     logger.error(error);
-    return res.status(415).json(error);
+    return res.status(500).json(error);
   }
 };

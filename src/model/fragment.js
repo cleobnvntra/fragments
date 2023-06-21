@@ -36,6 +36,7 @@ class Fragment {
     }
 
     const parsedType = contentType.parse(type);
+    console.log(parsedType);
     if (!Fragment.isSupportedType(parsedType.type)) {
       throw new Error(`Invalid type: ${type}`);
     }
@@ -67,7 +68,7 @@ class Fragment {
       fragmentObjects.push(fragmentId);
     }
 
-    return Promise.resolve(fragmentObjects);
+    return fragmentObjects;
   }
 
   /**
@@ -83,7 +84,7 @@ class Fragment {
       throw new Error('Unable to find fragment.');
     }
 
-    return Promise.resolve(new Fragment(fragmentData));
+    return new Fragment(fragmentData);
   }
 
   /**
@@ -124,7 +125,7 @@ class Fragment {
       throw new Error('No data retrieved.');
     }
 
-    return Promise.resolve(Buffer.from(data));
+    return Buffer.from(data);
   }
 
   /**
@@ -135,8 +136,8 @@ class Fragment {
   async setData(data) {
     await writeFragmentData(this.ownerId, this.id, data);
     this.size = Buffer.byteLength(data);
-    this.save();
-    return Promise.resolve();
+
+    return this.save();
   }
 
   /**

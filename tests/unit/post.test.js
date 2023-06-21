@@ -14,12 +14,13 @@ describe('POST /v1/fragments/', () => {
   });
 
   test('should throw error when requesting to create a fragment with an invalid content-type', async () => {
-    const data = 'someInvalidData';
+    const data = 'someData';
     const res = await request(app)
-      .post('/v1/fragments')
+      .post(`/v1/fragments`)
       .auth('user1@email.com', 'password1')
-      .set('ContentType', 'invalid/type')
+      .set('Content-Type', 'invalid/type')
       .send(data);
+    console.log(res.error);
     expect(res.statusCode).toBe(415);
   });
 });
