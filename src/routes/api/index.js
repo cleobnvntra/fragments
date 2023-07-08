@@ -33,7 +33,7 @@ router.get('/fragments', getHandler);
 router.get('/fragments/:id', getHandler.getFragmentById);
 
 //GET route for /v1/fragments/:id/info to retrieve a fragment metadata based on the id parameter
-router.get('/fragments/:id/info', getHandler.getFragment);
+router.get('/fragments/:id/info', getHandler.getFragmentInfo);
 
 //PUT route for /v1/fragments/:id to update a fragment based on id parameter
 router.put('/fragments/:id', rawBody(), require('./put'));

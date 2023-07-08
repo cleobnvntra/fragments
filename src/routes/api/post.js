@@ -8,6 +8,7 @@ module.exports = async (req, res) => {
     let content;
     if (Buffer.isBuffer(req.body)) {
       content = req.body;
+      logger.debug(content);
     } else {
       const error = createErrorResponse(415, 'Invalid type');
       return res.status(415).json(error);
@@ -16,7 +17,6 @@ module.exports = async (req, res) => {
     // Extract the Content-Type header from the request
     const contentType = req.get('Content-Type');
 
-    // Calculate the size of the file data in bytes
     const size = Buffer.byteLength(content);
 
     // Create a new instance of the Fragment class

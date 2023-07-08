@@ -61,7 +61,7 @@ class Fragment {
 
     if (expand || !fragments) {
       // If expand is true or no fragments are returned, return the fragments as-is
-      return Promise.resolve(fragments);
+      return fragments;
     }
 
     for (const fragmentId of fragments) {
@@ -164,9 +164,23 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    const mimeType = this.mimeType;
-    return [mimeType];
+  const type = this.mimeType;
+  let validExtensions = [];
+
+  if (type === 'text/plain') {
+    validExtensions = ['txt'];
+  } else if (type === 'text/markdown') {
+    validExtensions = ['md', 'html', 'txt'];
+  } else if (type === 'text/html') {
+    validExtensions = ['html', 'txt'];
+  } else if (type === 'application/json') {
+    validExtensions = ['json', 'txt'];
+  } else if (type === 'image/png' || type === 'image/jpeg' || type === 'image/webp' || type === 'image/gif') {
+    validExtensions = ['png', 'jpg', 'webp', 'gif'];
   }
+
+  return validExtensions;
+}
 
   /**
    * Returns true if we know how to work with this content type
