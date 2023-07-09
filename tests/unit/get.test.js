@@ -24,6 +24,38 @@ describe('GET routes', () => {
       expect(res.body.status).toBe('ok');
       expect(Array.isArray(res.body.fragments)).toBe(true);
     });
+
+    describe('GET /v1/fragments?expand=1', () => {
+      test('request with expanded query gets the expanded metadata information', async () => {
+        const data = 'someData';
+        await request(app)
+          .post(`/v1/fragments/`)
+          .auth('user1@email.com', 'password1')
+          .set('Content-Type', 'text/plain')
+          .send(data);
+
+        const receiveRes = await request(app)
+          .get(`/v1/fragments?expand=1`)
+          .auth(`user1@email.com`, `password1`);
+        expect(receiveRes.statusCode).toBe(200);
+        expect(receiveRes.body).toMatchObject({
+          fragments: expect.arrayContaining([
+            expect.objectContaining({
+              id: expect.any(String),
+              ownerId: expect.any(String),
+              created: expect.any(String),
+              updated: expect.any(String),
+              type: expect.any(String),
+              size: expect.any(Number),
+            }),
+          ]),
+        });
+        receiveRes.body.fragments.forEach((fragment) => {
+          expect(Date.parse(fragment.created)).not.toBeNaN();
+          expect(Date.parse(fragment.updated)).not.toBeNaN();
+        });
+      });
+    });
   });
 
   describe('GET /v1/fragments/:id', () => {
@@ -64,6 +96,79 @@ describe('GET routes', () => {
         .get(`/v1/fragments/${fragmentId}`)
         .auth(`user1@email.com`, `password1`);
       expect(res.statusCode).toBe(404);
+    });
+  });
+
+  describe('GET /v1/fragments/:id.ext', () => {
+    test('must return raw data converted from md to html', async () => {
+      const mdData = '# This is a fragment';
+      const htmlData = '<h1>This is a fragment</h1>\n';
+      const createRes = await request(app)
+        .post(`/v1/fragments/`)
+        .auth('user1@email.com', 'password1')
+        .set('Content-Type', 'text/markdown')
+        .send(mdData);
+
+      const fragmentId = createRes.body.fragment.id;
+      const receiveRes = await request(app)
+        .get(`/v1/fragments/${fragmentId}.html`)
+        .auth('user1@email.com', 'password1');
+      expect(receiveRes.get('Content-Type')).toBe('text/html; charset=utf-8');
+      expect(receiveRes.status).toBe(200);
+      expect(receiveRes.text).toBe(htmlData);
+    });
+
+    test('must return raw data converted from json to txt', async () => {
+      const jsonObj = { name: 'Cleo', email: 'cjbuenaventura@myseneca.ca' };
+      const createRes = await request(app)
+        .post(`/v1/fragments/`)
+        .auth('user1@email.com', 'password1')
+        .set('Content-Type', 'application/json')
+        .send(jsonObj);
+
+      const fragmentId = createRes.body.fragment.id;
+      const receiveRes = await request(app)
+        .get(`/v1/fragments/${fragmentId}.txt`)
+        .auth('user1@email.com', 'password1');
+      expect(receiveRes.get('Content-Type')).toBe('text/plain; charset=utf-8');
+      expect(receiveRes.status).toBe(200);
+      expect(receiveRes.text).toBe(JSON.stringify(jsonObj));
+    });
+
+    test('must return raw data without converting if current type is the same as ext', async () => {
+      const jsonObj = { name: 'Cleo', email: 'cjbuenaventura@myseneca.ca' };
+      const createRes = await request(app)
+        .post(`/v1/fragments/`)
+        .auth('user1@email.com', 'password1')
+        .set('Content-Type', 'application/json')
+        .send(jsonObj);
+
+      const fragmentId = createRes.body.fragment.id;
+      const receiveRes = await request(app)
+        .get(`/v1/fragments/${fragmentId}.json`)
+        .auth('user1@email.com', 'password1');
+      expect(receiveRes.get('Content-Type')).toBe('application/json; charset=utf-8');
+      expect(receiveRes.status).toBe(200);
+    });
+
+    test('throw error if extension is invalid or not a supported conversion', async () => {
+      const jsonObj = { name: 'Cleo', email: 'cjbuenaventura@myseneca.ca' };
+      const createRes = await request(app)
+        .post(`/v1/fragments/`)
+        .auth('user1@email.com', 'password1')
+        .set('Content-Type', 'application/json')
+        .send(jsonObj);
+
+      const fragmentId = createRes.body.fragment.id;
+      const receiveRes1 = await request(app)
+        .get(`/v1/fragments/${fragmentId}.html`)
+        .auth('user1@email.com', 'password1');
+      expect(receiveRes1.status).toBe(415);
+
+      const receiveRes2 = await request(app)
+        .get(`/v1/fragments/${fragmentId}.invalid-extension`)
+        .auth('user1@email.com', 'password1');
+      expect(receiveRes2.status).toBe(415);
     });
   });
 

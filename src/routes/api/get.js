@@ -50,10 +50,10 @@ module.exports.getFragmentInfo = async (req, res) => {
 
 module.exports.getFragmentById = async (req, res) => {
   try {
-    const parts = (req.params.id).split('.');
+    const parts = req.params.id.split('.');
     const id = parts[0];
     const ext = parts[1];
-    const fragment = await Fragment.byId(req.user, id); 
+    const fragment = await Fragment.byId(req.user, id);
 
     logger.debug(fragment);
 
@@ -74,15 +74,8 @@ module.exports.getFragmentById = async (req, res) => {
     }
 
     if (ext) {
-      try {
-        text = await handleConversion(text, fragment.type, ext);
-        logger.debug(text);
-      }
-      catch(err) {
-        const error = createErrorResponse(415, err.message);
-        logger.error(error);
-        return res.status(415).json(error);
-      }
+      text = handleConversion(fragment, text, fragment.type, ext);
+      logger.debug(text);
     }
 
     const baseUrl = req.headers.host + '/v1/fragments/';
@@ -90,7 +83,7 @@ module.exports.getFragmentById = async (req, res) => {
     res.setHeader('Location', baseUrl + fragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
 
-    if(fragment.type == 'application/json') {
+    if (fragment.type == 'application/json') {
       return res.status(200).json(text);
     }
     return res.status(200).send(text);
@@ -101,12 +94,19 @@ module.exports.getFragmentById = async (req, res) => {
   }
 };
 
-const handleConversion = async (data, from, to) => {
-    if (from === 'text/markdown' && to === 'html') {
-      const md = require('markdown-it')();
-      return md.render(data.toString());
-    } else if ((from === 'text/html' || from === 'text/markdown' || from === 'application/json') && to === 'txt') {
-      return data.toString();
-    }
-    return data;
-}
+const handleConversion = (fragment, data, from, to) => {
+  if (from === 'text/markdown' && to === 'html') {
+    const md = require('markdown-it')();
+    fragment.type = 'text/html';
+    fragment.save();
+    return md.render(data.toString());
+  } else if (
+    (from === 'text/html' || from === 'text/markdown' || from === 'application/json') &&
+    to === 'txt'
+  ) {
+    fragment.type = 'text/plain';
+    fragment.save();
+    return data.toString();
+  }
+  return data;
+};
