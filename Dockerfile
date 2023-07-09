@@ -2,8 +2,8 @@
 FROM node:18.16.0 AS build
 
 # LABEL <key=value>
-LABEL maintainer="Cleo Buenaventura <cjbuenaventura@myseneca.ca>"
-LABEL description="Fragments node.js microservice"
+LABEL maintainer="Cleo Buenaventura <cjbuenaventura@myseneca.ca>" \
+      description="Fragments node.js microservice"
 
 # Set NODE_ENV to production
 ENV NODE_ENV=production \
@@ -27,23 +27,20 @@ RUN npm ci --only=production
 FROM node:alpine
 
 # Set NODE_ENV to production
-ENV NODE_ENV=production
-
-# Default port
-ENV PORT=8080
-
-# Reduce npm spam when installing within Docker
-ENV NPM_CONFIG_LOGLEVEL=warn
-
-# Disable color when run inside Docker
-ENV NPM_CONFIG_COLOR=false
+ENV NODE_ENV=production \
+    # Default port
+    PORT=8080 \
+    # Reduce npm spam when installing within Docker
+    NPM_CONFIG_LOGLEVEL=warn \
+    # Disable color when run inside Docker
+    NPM_CONFIG_COLOR=false
 
 # Use /app as the working directory
 WORKDIR /app
 
 # Copy dependencies from the build stage
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package*.json ./
+COPY  --from=build /app/node_modules ./node_modules \
+      --from=build /app/package*.json ./
 
 # Copy src to /app/src/
 COPY ./src ./src
