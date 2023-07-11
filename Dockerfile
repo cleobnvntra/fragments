@@ -35,8 +35,8 @@ COPY --from=build /app/package*.json ./
 
 # Copy source files to image
 COPY ./src ./src
-COPY .env .env
-COPY env.jest env.jest
+COPY ./.env ./.env
+COPY ./env.jest ./env.jest
 
 # Start the container by running our server
 CMD ["node", "src/index.js"]
