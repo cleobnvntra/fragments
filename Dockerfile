@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM node:18.16.0 AS build
+FROM node:18.12.0@sha256:cef9966b19672effeafcf1a67b8add742c3e46ca7dd5532efff60820526c2e95 AS build
 
 # LABEL <key=value>
 LABEL maintainer="Cleo Buenaventura <cjbuenaventura@myseneca.ca>"
@@ -24,19 +24,7 @@ COPY package*.json /app/
 RUN npm ci --only=production
 
 # Stage 2: Production stage
-FROM node:alpine
-
-# Set NODE_ENV to production
-ENV NODE_ENV=production
-
-# Default port
-ENV PORT=8080
-
-# Reduce npm spam when installing within Docker
-ENV NPM_CONFIG_LOGLEVEL=warn
-
-# Disable color when run inside Docker
-ENV NPM_CONFIG_COLOR=false
+FROM node:alpine@sha256:d5b2a7869a4016b1847986ea52098fa404421e44281bb7615a9e3615e07f37fb
 
 # Use /app as the working directory
 WORKDIR /app
@@ -45,11 +33,8 @@ WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package*.json ./
 
-# Copy src to /app/src/
-COPY ./src ./src
-
-# Copy our HTPASSWD file
-COPY ./tests/.htpasswd ./tests/.htpasswd
+# Copy source files to image
+COPY . .
 
 # Start the container by running our server
 CMD ["node", "src/index.js"]
