@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
 
     // Send the response with the newly created fragment metadata
     const data = createSuccessResponse({ fragment: newFragment, message: 'Fragment created' });
-    const baseUrl = req.headers.host + '/v1/fragments/';
+    const baseUrl = 'http://' + req.headers.host + '/v1/fragments/';
     res.setHeader('Location', baseUrl + newFragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(201).json({ ...data });
