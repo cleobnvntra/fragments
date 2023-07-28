@@ -1,12 +1,8 @@
 // src/model/data/index.js
 
-// If the environment sets an AWS Region, we'll use AWS backend
-// services (S3, DynamoDB); otherwise, we'll use an in-memory db.
-module.exports = process.env.AWS_REGION ? require('./aws') : require('./memory');
-const logger = require('../../../logger')
-
 // XXX: temporary use of memory-db until we add DynamoDB
 const MemoryDB = require('../memory/memory-db');
+const logger = require('../../../logger');
 
 // Create two in-memory databases: one for fragment metadata and the other for raw data
 // const data = new MemoryDB();
@@ -111,7 +107,6 @@ async function listFragments(ownerId, expand = false) {
 
 // Delete a fragment's metadata and data from memory db. Returns a Promise
 async function deleteFragment(ownerId, id) {
-  
   const params = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
     // Our key is a mix of the ownerId and fragment id, written as a path

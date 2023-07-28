@@ -10,7 +10,7 @@ const {
   writeFragmentData,
   listFragments,
   deleteFragment,
-} = require('./data/memory');
+} = require('./data/aws');
 
 class Fragment {
   constructor({ id, ownerId, created, updated, type, size = 0 }) {
@@ -164,23 +164,28 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-  const type = this.mimeType;
-  let validExtensions = [];
+    const type = this.mimeType;
+    let validExtensions = [];
 
-  if (type === 'text/plain') {
-    validExtensions = ['txt'];
-  } else if (type === 'text/markdown') {
-    validExtensions = ['md', 'html', 'txt'];
-  } else if (type === 'text/html') {
-    validExtensions = ['html', 'txt'];
-  } else if (type === 'application/json') {
-    validExtensions = ['json', 'txt'];
-  } else if (type === 'image/png' || type === 'image/jpeg' || type === 'image/webp' || type === 'image/gif') {
-    validExtensions = ['png', 'jpg', 'webp', 'gif'];
+    if (type === 'text/plain') {
+      validExtensions = ['txt'];
+    } else if (type === 'text/markdown') {
+      validExtensions = ['md', 'html', 'txt'];
+    } else if (type === 'text/html') {
+      validExtensions = ['html', 'txt'];
+    } else if (type === 'application/json') {
+      validExtensions = ['json', 'txt'];
+    } else if (
+      type === 'image/png' ||
+      type === 'image/jpeg' ||
+      type === 'image/webp' ||
+      type === 'image/gif'
+    ) {
+      validExtensions = ['png', 'jpg', 'webp', 'gif'];
+    }
+
+    return validExtensions;
   }
-
-  return validExtensions;
-}
 
   /**
    * Returns true if we know how to work with this content type
