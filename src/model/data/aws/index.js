@@ -3,12 +3,13 @@
 // If the environment sets an AWS Region, we'll use AWS backend
 // services (S3, DynamoDB); otherwise, we'll use an in-memory db.
 module.exports = process.env.AWS_REGION ? require('./aws') : require('./memory');
+const logger = require('../../../logger')
 
 // XXX: temporary use of memory-db until we add DynamoDB
 const MemoryDB = require('../memory/memory-db');
 
 // Create two in-memory databases: one for fragment metadata and the other for raw data
-const data = new MemoryDB();
+// const data = new MemoryDB();
 const metadata = new MemoryDB();
 
 const s3Client = require('./s3Client');
