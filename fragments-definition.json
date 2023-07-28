@@ -27,14 +27,6 @@
       "cpu": 256,
       "environment": [
         {
-          "name": "AWS_COGNITO_CLIENT_ID",
-          "value": "3rvvph5t8gjhk6prkckcnd987e"
-        },
-        {
-          "name": "AWS_COGNITO_POOL_ID",
-          "value": "us-east-1_E5DOVfgcD"
-        },
-        {
           "name": "HTPASSWD_FILE",
           "value": "tests/.htpasswd"
         },
