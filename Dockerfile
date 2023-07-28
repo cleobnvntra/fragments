@@ -36,6 +36,8 @@ COPY --from=build /app/package*.json ./
 # Copy source files to image
 COPY ./src ./src
 
+COPY ./tests ./tests
+
 # Start the container by running our server
 CMD ["node", "src/index.js"]
 
