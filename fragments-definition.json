@@ -27,6 +27,10 @@
       "cpu": 256,
       "environment": [
         {
+          "name": "AWS_S3_BUCKET_NAME",
+          "value": "cjbuenaventura-fragments"
+        },
+        {
           "name": "HTPASSWD_FILE",
           "value": "tests/.htpasswd"
         },
@@ -68,7 +72,7 @@
   ],
   "placementConstraints": [],
   "memory": "512",
-  "taskRoleArn": null,
+  "taskRoleArn": "arn:aws:iam::404085952320:role/LabRole",
   "compatibilities": ["EC2", "FARGATE"],
   "taskDefinitionArn": "arn:aws:ecs:us-east-1:404085952320:task-definition/fragments-task:1",
   "family": "fragments-task",
