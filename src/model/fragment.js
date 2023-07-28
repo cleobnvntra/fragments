@@ -111,6 +111,8 @@ class Fragment {
       type: this.type,
       size: this.size,
     };
+    //TO DO: WRITES METADATA TO IN-MEMORY DB.
+    //When metadata is deleted from S3, the fragment can still be retrieved.
     await writeFragment(fragmentData);
     return Promise.resolve();
   }
