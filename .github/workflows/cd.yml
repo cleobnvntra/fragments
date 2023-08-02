@@ -95,6 +95,7 @@ jobs:
             AWS_REGION=${{ secrets.AWS_REGION }}
             AWS_COGNITO_POOL_ID=${{ secrets.AWS_COGNITO_POOL_ID }}
             AWS_COGNITO_CLIENT_ID=${{ secrets.AWS_COGNITO_CLIENT_ID }}
+            AWS_DYNAMODB_TABLE_NAME=fragments
             API_URL=${{ secrets.API_URL }}
 
       - name: Deploy Amazon ECS task definition
