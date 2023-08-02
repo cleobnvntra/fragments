@@ -37,7 +37,7 @@ module.exports.getFragmentInfo = async (req, res) => {
     logger.debug(fragment);
 
     const data = createSuccessResponse({ code: 200, fragments: fragment });
-    const baseUrl = req.headers.host + '/v1/fragments/';
+    const baseUrl = 'http://' + req.headers.host + '/v1/fragments/';
     res.setHeader('Location', baseUrl + fragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(200).json({ ...data });
