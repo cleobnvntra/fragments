@@ -84,7 +84,7 @@ module.exports.getFragmentById = async (req, res) => {
     res.setHeader('Access-Control-Expose-Headers', 'Location');
 
     if (fragment.type == 'application/json') {
-      return res.status(200).json(text);
+      return res.status(200).json(JSON.parse(text));
     }
     return res.status(200).send(text);
   } catch (err) {
