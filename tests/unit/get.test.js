@@ -3,6 +3,7 @@
 const request = require('supertest');
 const app = require('../../src/app');
 const { Fragment } = require('../../src/model/fragment');
+const sharp = require('sharp');
 
 describe('GET routes', () => {
   describe('GET /v1/fragments', () => {
@@ -80,7 +81,7 @@ describe('GET routes', () => {
         .set('Content-Type', 'text/plain')
         .send(data);
 
-      const fragmentId = createRes.body.fragment.id;
+      const fragmentId = JSON.parse(createRes.text).fragment.id;
       const receiveRes = await request(app)
         .get(`/v1/fragments/${fragmentId}`)
         .auth(`user1@email.com`, `password1`);
@@ -97,6 +98,58 @@ describe('GET routes', () => {
         .auth(`user1@email.com`, `password1`);
       expect(res.statusCode).toBe(404);
     });
+
+    test('create and retrieve an image/png fragment', async () => {
+      //create a text image using sharp
+      const img = await sharp({
+        text: {
+          text: 'Hello, world!',
+          width: 400, // max width
+          height: 300, // max height
+        },
+      })
+        .png()
+        .toBuffer();
+
+      const createRes = await request(app)
+        .post(`/v1/fragments`)
+        .auth(`user1@email.com`, `password1`)
+        .set(`Content-Type`, `image/png`)
+        .send(img);
+
+      const fragment = JSON.parse(createRes.body).fragment;
+      const res = await request(app)
+        .get(`/v1/fragments/${fragment.id}`)
+        .auth(`user1@email.com`, `password1`);
+      expect(res.statusCode).toBe(200);
+      expect(res.type).toBe('image/png');
+    });
+
+    test('create and retrieve an image/gif fragment', async () => {
+      //create a text image using sharp
+      const img = await sharp({
+        text: {
+          text: 'Hello, world!',
+          width: 400, // max width
+          height: 300, // max height
+        },
+      })
+        .gif()
+        .toBuffer();
+
+      const createRes = await request(app)
+        .post(`/v1/fragments`)
+        .auth(`user1@email.com`, `password1`)
+        .set(`Content-Type`, `image/gif`)
+        .send(img);
+
+      const fragment = JSON.parse(createRes.body).fragment;
+      const res = await request(app)
+        .get(`/v1/fragments/${fragment.id}`)
+        .auth(`user1@email.com`, `password1`);
+      expect(res.statusCode).toBe(200);
+      expect(res.type).toBe('image/gif');
+    });
   });
 
   describe('GET /v1/fragments/:id.ext', () => {
@@ -109,13 +162,47 @@ describe('GET routes', () => {
         .set('Content-Type', 'text/markdown')
         .send(mdData);
 
-      const fragmentId = createRes.body.fragment.id;
+      const fragmentId = JSON.parse(createRes.text).fragment.id;
       const receiveRes = await request(app)
         .get(`/v1/fragments/${fragmentId}.html`)
         .auth('user1@email.com', 'password1');
       expect(receiveRes.get('Content-Type')).toBe('text/html; charset=utf-8');
       expect(receiveRes.status).toBe(200);
       expect(receiveRes.text).toBe(htmlData);
+    });
+
+    test('must return raw data converted from md to txt', async () => {
+      const mdData = '# This is a fragment';
+      const createRes = await request(app)
+        .post(`/v1/fragments/`)
+        .auth('user1@email.com', 'password1')
+        .set('Content-Type', 'text/markdown')
+        .send(mdData);
+
+      const fragmentId = JSON.parse(createRes.text).fragment.id;
+      const receiveRes = await request(app)
+        .get(`/v1/fragments/${fragmentId}.txt`)
+        .auth('user1@email.com', 'password1');
+      expect(receiveRes.get('Content-Type')).toBe('text/plain; charset=utf-8');
+      expect(receiveRes.status).toBe(200);
+      expect(receiveRes.text).toBe(String('# This is a fragment'));
+    });
+
+    test('must return raw data converted from html to txt', async () => {
+      const mdData = '<h3> This is a fragment </h3>';
+      const createRes = await request(app)
+        .post(`/v1/fragments/`)
+        .auth('user1@email.com', 'password1')
+        .set('Content-Type', 'text/html')
+        .send(mdData);
+
+      const fragmentId = JSON.parse(createRes.text).fragment.id;
+      const receiveRes = await request(app)
+        .get(`/v1/fragments/${fragmentId}.txt`)
+        .auth('user1@email.com', 'password1');
+      expect(receiveRes.get('Content-Type')).toBe('text/plain; charset=utf-8');
+      expect(receiveRes.status).toBe(200);
+      expect(receiveRes.text).toBe(String('<h3> This is a fragment </h3>'));
     });
 
     test('must return raw data converted from json to txt', async () => {
@@ -170,6 +257,83 @@ describe('GET routes', () => {
         .auth('user1@email.com', 'password1');
       expect(receiveRes2.status).toBe(415);
     });
+
+    test('successful conversion of a png image to jpeg', async () => {
+      const img = await sharp({
+        text: {
+          text: 'Hello, world!',
+          width: 400, // max width
+          height: 300, // max height
+        },
+      })
+        .png()
+        .toBuffer();
+
+      const createRes = await request(app)
+        .post(`/v1/fragments`)
+        .auth(`user1@email.com`, `password1`)
+        .set(`Content-Type`, `image/png`)
+        .send(img);
+
+      const fragment = JSON.parse(createRes.body).fragment;
+      const convertRes = await request(app)
+        .get(`/v1/fragments/${fragment.id}.jpeg`)
+        .auth(`user1@email.com`, `password1`)
+        .set(`Content-Type`, `image/png`);
+      expect(convertRes.status).toBe(200);
+      expect(convertRes.type).toBe('image/jpeg');
+    });
+
+    test('successful conversion of a jpeg image to gif', async () => {
+      const img = await sharp({
+        text: {
+          text: 'Hello, world!',
+          width: 400, // max width
+          height: 300, // max height
+        },
+      })
+        .jpeg()
+        .toBuffer();
+
+      const createRes = await request(app)
+        .post(`/v1/fragments`)
+        .auth(`user1@email.com`, `password1`)
+        .set(`Content-Type`, `image/jpeg`)
+        .send(img);
+
+      const fragment = JSON.parse(createRes.body).fragment;
+      const convertRes = await request(app)
+        .get(`/v1/fragments/${fragment.id}.gif`)
+        .auth(`user1@email.com`, `password1`)
+        .set(`Content-Type`, `image/jpeg`);
+      expect(convertRes.status).toBe(200);
+      expect(convertRes.type).toBe('image/gif');
+    });
+
+    test('Invalid conversion of image', async () => {
+      const img = await sharp({
+        text: {
+          text: 'Hello, world!',
+          width: 400, // max width
+          height: 300, // max height
+        },
+      })
+        .jpeg()
+        .toBuffer();
+
+      const createRes = await request(app)
+        .post(`/v1/fragments`)
+        .auth(`user1@email.com`, `password1`)
+        .set(`Content-Type`, `image/jpeg`)
+        .send(img);
+
+      const fragment = JSON.parse(createRes.body).fragment;
+      const convertRes = await request(app)
+        .get(`/v1/fragments/${fragment.id}.invalidext`)
+        .auth(`user1@email.com`, `password1`)
+        .set('Content-Type', 'image/jpeg');
+      expect(convertRes.status).toBe(415);
+    });
   });
 
   describe('GET /v1/fragments/:id/info', () => {
@@ -194,18 +358,20 @@ describe('GET routes', () => {
         .set('Content-Type', 'text/plain')
         .send(data);
 
-      const fragmentId = createRes.body.fragment.id;
+      const fragmentId = JSON.parse(createRes.text).fragment.id;
       const receiveRes = await request(app)
         .get(`/v1/fragments/${fragmentId}/info`)
         .auth('user1@email.com', 'password1');
 
-      const fragment = receiveRes.body.fragments;
-      expect(receiveRes.statusCode).toBe(200);
-      expect(receiveRes.body.status).toBe('ok');
-      expect(receiveRes.body.fragments).toBeDefined();
+      const res = JSON.parse(receiveRes.text);
+      const fragment = res.fragments;
+
+      expect(res.code).toBe(200);
+      expect(res.status).toBe('ok');
+      expect(res.fragments).toBeDefined();
       expect(fragment.id).toBe(fragmentId);
-      expect(fragment.type).toBe(createRes.body.fragment.type);
-      expect(fragment.size).toBe(createRes.body.fragment.size);
+      expect(fragment.type).toBe('text/plain');
+      expect(fragment.size).toBe(8);
     });
 
     test('non-existent fragment id requested', async () => {

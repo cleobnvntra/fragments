@@ -2,6 +2,7 @@
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
+const sharp = require('sharp');
 
 /**
  * Get a list of fragments for the current user
@@ -38,6 +39,7 @@ module.exports.getFragmentInfo = async (req, res) => {
 
     const data = createSuccessResponse({ code: 200, fragments: fragment });
     const baseUrl = 'http://' + req.headers.host + '/v1/fragments/';
+    res.setHeader('Content-Type', fragment.mimeType);
     res.setHeader('Location', baseUrl + fragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(200).json({ ...data });
@@ -53,60 +55,111 @@ module.exports.getFragmentById = async (req, res) => {
     const parts = req.params.id.split('.');
     const id = parts[0];
     const ext = parts[1];
-    const fragment = await Fragment.byId(req.user, id);
 
-    logger.debug(fragment);
-
-    let text;
+    let fragment;
     try {
-      text = await fragment.getData();
-      logger.debug(text.toString());
+      fragment = await Fragment.byId(req.user, id);
+      // logger.debug(fragment);
     } catch (err) {
       const error = createErrorResponse(404, err.message);
       logger.error(error);
       return res.status(404).json(error);
     }
 
-    //Check if the extension is supported for conversion
-    if (ext && !fragment.formats.includes(ext)) {
-      logger.error(`${ext} is an invalid conversion.`);
-      return res.status(415).send(`${ext} is an invalid conversion.`);
+    let data;
+    try {
+      data = await fragment.getData();
+      // logger.debug(data);
+    } catch (err) {
+      const error = createErrorResponse(404, err.message);
+      logger.error(error);
+      return res.status(404).json(error);
     }
 
     if (ext) {
-      text = handleConversion(fragment, text, fragment.type, ext);
-      logger.debug(text);
+      //Check if the extension is supported for conversion
+      //If extension is supported for conversion, handle it
+      if (fragment.formats.includes(ext)) {
+        data = await handleConversion(fragment, data, ext);
+        logger.debug(data);
+      } else {
+        logger.error(`${ext} is an invalid conversion.`);
+        return res.status(415).send(`${ext} is an invalid conversion.`);
+      }
+    } else {
+      if (fragment.type.startsWith('image/')) {
+        const format = fragment.type.split('/')[1];
+        // logger.debug(format);
+        try {
+          if (format === 'gif') {
+            data = await sharp(data, { animated: true }).gif().toBuffer();
+          } else {
+            data = await sharp(data).toFormat(format).toBuffer();
+          }
+        } catch (err) {
+          const error = createErrorResponse(500, err);
+          logger.error(error);
+          return res.status(500).json(error);
+        }
+      }
     }
 
-    const baseUrl = req.headers.host + '/v1/fragments/';
-    res.setHeader('Content-Type', fragment.type);
+    const baseUrl = 'http://' + req.headers.host + '/v1/fragments/';
+    res.setHeader('Content-Type', fragment.mimeType);
     res.setHeader('Location', baseUrl + fragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
 
     if (fragment.type == 'application/json') {
-      return res.status(200).json(JSON.parse(text));
+      return res.status(200).json(JSON.parse(data));
     }
-    return res.status(200).send(text);
+
+    return res.status(200).send(data);
   } catch (err) {
-    const error = createErrorResponse(404, err.message);
+    const error = createErrorResponse(500, err.message);
     logger.error(error);
-    return res.status(404).json(error);
+    return res.status(500).json(error);
   }
 };
 
-const handleConversion = (fragment, data, from, to) => {
-  if (from === 'text/markdown' && to === 'html') {
-    const md = require('markdown-it')();
-    fragment.type = 'text/html';
-    fragment.save();
-    return md.render(data.toString());
-  } else if (
-    (from === 'text/html' || from === 'text/markdown' || from === 'application/json') &&
-    to === 'txt'
-  ) {
-    fragment.type = 'text/plain';
-    fragment.save();
-    return data.toString();
+const handleConversion = async (fragment, data, to) => {
+  if (fragment.type.startsWith('image/')) {
+    if (to === 'gif') {
+      let img = sharp(data, { animated: true });
+      data = img.gif().toBuffer();
+    } else {
+      let img = sharp(data);
+      data = await img.toFormat(to).toBuffer();
+    }
+    fragment.type = `image/${to}`;
+    await fragment.save();
+    return data;
+  } else {
+    if (fragment.isText) {
+      if (fragment.type === 'text/markdown') {
+        if (to === 'html') {
+          const mdToHtml = require('markdown-it')();
+          data = mdToHtml.render(data.toString());
+          fragment.type = 'text/html';
+          await fragment.setData(data);
+          return data;
+        }
+
+        if (to === 'txt') {
+          fragment.type = 'text/plain';
+          await fragment.save();
+          return data.toString();
+        }
+      } else if (fragment.type === 'text/html' && to === 'txt') {
+        fragment.type = 'text/plain';
+        await fragment.save();
+        return data.toString();
+      }
+    } else if (fragment.type === 'application/json' && to === 'txt') {
+      data = data.toString();
+      fragment.type = 'text/plain';
+      await fragment.setData(data);
+      return data;
+    }
   }
   return data;
 };

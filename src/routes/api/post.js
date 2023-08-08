@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
     let content;
     if (Buffer.isBuffer(req.body)) {
       content = req.body;
-      logger.debug(content);
+      // logger.debug(content);
     } else {
       const error = createErrorResponse(415, 'Invalid type');
       return res.status(415).json(error);
@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
 
     let newFragment;
     newFragment = new Fragment(fragmentData);
-    logger.debug(newFragment);
+    // logger.debug(newFragment);
 
     // Store the file data and metadata in the database or any other storage mechanism
     await newFragment.setData(content);
@@ -36,8 +36,10 @@ module.exports = async (req, res) => {
     // Send the response with the newly created fragment metadata
     const data = createSuccessResponse({ fragment: newFragment, message: 'Fragment created' });
     const baseUrl = 'http://' + req.headers.host + '/v1/fragments/';
+    res.setHeader('Content-Type', newFragment.mimeType);
     res.setHeader('Location', baseUrl + newFragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
+
     return res.status(201).json({ ...data });
   } catch (err) {
     console.log(err.message);

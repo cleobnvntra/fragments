@@ -24,7 +24,8 @@ describe('DELETE /v1/fragments/:id', () => {
       .set('Content-Type', 'text/plain')
       .send(data);
 
-    const fragmentId = createRes.body.fragment.id;
+    const fragmentId = JSON.parse(createRes.text).fragment.id;
+    console.log(fragmentId);
     const deleteRes = await request(app)
       .delete(`/v1/fragments/${fragmentId}`)
       .auth('user1@email.com', 'password1');

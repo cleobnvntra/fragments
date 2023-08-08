@@ -36,7 +36,7 @@ class Fragment {
     }
 
     const parsedType = contentType.parse(type);
-    console.log(parsedType);
+
     if (!Fragment.isSupportedType(parsedType.type)) {
       throw new Error(`Invalid type: ${type}`);
     }
@@ -181,7 +181,7 @@ class Fragment {
       type === 'image/webp' ||
       type === 'image/gif'
     ) {
-      validExtensions = ['png', 'jpg', 'webp', 'gif'];
+      validExtensions = ['png', 'jpeg', 'webp', 'gif'];
     }
 
     return validExtensions;
@@ -201,6 +201,7 @@ class Fragment {
       'image/png',
       'image/jpeg',
       'image/webp',
+      'image/gif',
     ];
 
     const typeWithoutCharset = value.split(';')[0].trim();

@@ -41,6 +41,7 @@ module.exports = async (req, res) => {
     logger.debug(data);
 
     const baseUrl = 'http://' + req.headers.host + '/v1/fragments/';
+    res.setHeader('Content-Type', fragment.mimeType);
     res.setHeader('Location', baseUrl + fragment.id);
     res.setHeader('Access-Control-Expose-Headers', 'Location');
     return res.status(200).json(data);

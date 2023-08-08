@@ -24,7 +24,7 @@ describe('PUT /v1/fragments/:id', () => {
       .set('Content-Type', 'text/plain')
       .send(data);
 
-    const fragmentId = createRes.body.fragment.id;
+    const fragmentId = JSON.parse(createRes.text).fragment.id;
     const receiveRes = await request(app)
       .get(`/v1/fragments/${fragmentId}`)
       .auth('user1@email.com', 'password1');
@@ -66,7 +66,7 @@ describe('PUT /v1/fragments/:id', () => {
       .set('Content-Type', 'text/plain')
       .send(data);
 
-    const fragmentId = createRes.body.fragment.id;
+    const fragmentId = JSON.parse(createRes.text).fragment.id;
     const newData = 'anotherNewData';
     const updateRes = await request(app)
       .put(`/v1/fragments/${fragmentId}`)

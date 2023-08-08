@@ -28,8 +28,6 @@ user1@email.com:password1
 
 HTTP/1.1 200
 Content-Type: application/json; charset=utf-8
-[Asserts]
-jsonpath "$.type" == "Buffer"
 
 # GET request for fragment's metadata
 GET {{url}}/info
