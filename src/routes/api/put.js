@@ -38,7 +38,6 @@ module.exports = async (req, res) => {
       message: 'Fragment data updated successfully',
       fragment: fragment,
     });
-    logger.debug(data);
 
     const baseUrl = 'http://' + req.headers.host + '/v1/fragments/';
     res.setHeader('Content-Type', fragment.mimeType);

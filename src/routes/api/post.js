@@ -8,7 +8,6 @@ module.exports = async (req, res) => {
     let content;
     if (Buffer.isBuffer(req.body)) {
       content = req.body;
-      // logger.debug(content);
     } else {
       const error = createErrorResponse(415, 'Invalid type');
       return res.status(415).json(error);
@@ -28,7 +27,7 @@ module.exports = async (req, res) => {
 
     let newFragment;
     newFragment = new Fragment(fragmentData);
-    // logger.debug(newFragment);
+    logger.debug(newFragment);
 
     // Store the file data and metadata in the database or any other storage mechanism
     await newFragment.setData(content);
@@ -42,7 +41,6 @@ module.exports = async (req, res) => {
 
     return res.status(201).json({ ...data });
   } catch (err) {
-    console.log(err.message);
     const error = createErrorResponse(500, err.message);
     logger.error(error);
     return res.status(500).json(error);
