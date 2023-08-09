@@ -57,15 +57,23 @@ npm run coverage
 npm run coverage <partial or full filename> - displays coverage of specified tests only
 ```
 
+## integration tests script
+
+-runs integration tests for deployment
+```sh
+npm run test:integration
+```
+
 > NOTE: dev and debug scripts uses the cross-env package to allow overriding of environment variable values when using Windows shells.<br><br>
 ```json
 "scripts": {
+    "test:integration": "hurl --test --glob \"tests/integration/**/*.hurl\"",
     "test:watch": "jest -c jest.config.js --runInBand --watch --",
-    "test": "jest -c jest.config.js --runInBand --",
+    "test": "jest -c jest.config.js --runInBand --detectOpenHandles --",
     "coverage": "jest -c jest.config.js --runInBand --coverage",
     "lint": "eslint --config .eslintrc.js \"./src/**/*.js\" \"tests/**/*.js\"",
-    "start": "node src/index.js",
-    "dev": "cross-env LOG_LEVEL=debug nodemon ./src/index.js --watch src",
+    "start": "nodemon src/index.js",
+    "dev": "cross-env LOG_LEVEL=debug nodemon ./src/index.js --watch src | pino-pretty",
     "debug": "cross-env LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/index.js --watch src"
   }
 ```
@@ -92,6 +100,18 @@ npm install --save express compression
 - a logging tool that provides a more detailed description of logs, which can also be personalized through options.<br>
 ```sh
 npm install --save pino
+```
+
+## sharp
+- an image processing tool which is used for converting images for this service
+```sh
+npm install sharp
+```
+
+## markdown-it
+- a library which is used for converting markdown texts into html texts
+```sh
+npm install markdown-it --save
 ```
 
 # Dev Dependencies

@@ -26,7 +26,7 @@ const rawBody = () =>
     },
   });
 
-//GET route for /v1/fragments and /v1/fragments/?expanded=1 query
+//GET route for /v1/fragments and /v1/fragments/?expand=1 query
 router.get('/fragments', getHandler);
 
 //GET route for /v1/fragments/:id to retrieve the data of a fragment based on the id parameter
